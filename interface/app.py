@@ -8,6 +8,7 @@ import os
 import sys
 import subprocess
 from sklearn.neural_network import MLPClassifier
+import google.generativeai as genai
 import threading
 import time
 import io
@@ -330,6 +331,17 @@ SRC_DIR = os.path.join(ROOT, "src")
 SIDE_EFFECT_LABELS = ["Fatigue", "Hematologic", "Nausea", "Neuropathy", "None"]
 RISK_LABELS_MAP = {0: "High", 1: "Low", 2: "Medium"}
 
+# ─── Gemini AI Setup ────────────────────────────────────────────────────────
+GEMINI_API_KEY = "AIzaSyCC66osWbTkW3_qY-GzgX8FecuNQHEN6Rs"
+genai.configure(api_key=GEMINI_API_KEY)
+generation_config = {
+    "temperature": 0.5,
+    "top_p": 1,
+    "top_k": 1,
+    "max_output_tokens": 800,
+}
+model_ai = genai.GenerativeModel(model_name="gemini-pro", generation_config=generation_config)
+
 RISK_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
 SEV_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
 
@@ -384,6 +396,29 @@ def load_models():
     except Exception as e:
         return False, str(e)
 
+
+def get_ai_recommendations(side_effect, risk_level, severity, age, stage):
+    """Fetch expert-level patient care recommendations from Gemini"""
+    prompt = f"""
+    Act as an expert oncologist. A breast cancer patient (Age: {age}, Cancer Stage: {stage}) has just been predicted to have the following chemotherapy side effect:
+    
+    Predicted Side Effect: {side_effect}
+    Severity: {severity}
+    Overall Risk Level: {risk_level}
+    
+    Please provide professional, concise recommendations in THREE sections:
+    1. SOLUTIONS & MEDICINES: Specifically for {side_effect} in breast cancer chemotherapy patients.
+    2. DIET & FOOD: What foods to eat or avoid to manage this side effect.
+    3. DAILY ROUTINE & REMEDIES: Lifestyle changes and non-medical remedies for {side_effect}.
+    
+    Use clear bullet points and markdown formatting. KEEP IT CONCISE and professional. 
+    Start directly with the first section.
+    """
+    try:
+        response = model_ai.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"AI Recommendation Service currently unavailable. Error: {str(e)}"
 
 def predict(age, stage, fatigue, pain, emotion, physical, social, cognitive, sleep, appetite, prev_nausea, prev_neuro):
     """Run prediction using loaded models"""
@@ -837,13 +872,34 @@ elif page == "🔬 Predict":
             )
             st.plotly_chart(fig_conf, use_container_width=True, config={"displayModeBar": False})
 
-            # Clinical recommendation
+                # Clinical recommendation
             recs = {
                 "High": "🔴 **High Risk** — Immediate consultation recommended. Consider dose adjustment and intensive monitoring. Patient shows high toxicity markers.",
                 "Medium": "🟡 **Medium Risk** — Regular monitoring advised. Consider prophylactic antiemetics. Schedule follow-up in 2 weeks.",
                 "Low": "🟢 **Low Risk** — Continue current treatment plan. Standard monitoring protocol applies. Next check-up in 4 weeks."
             }
             st.info(f"📋 **Clinical Recommendation**\n\n{recs.get(result['risk_level'], '')}")
+
+            # AI Recommendations from Gemini
+            with st.status("✨ Consultig Gemini AI for Personalized Care Plan...", expanded=True):
+                ai_advice = get_ai_recommendations(
+                    result['side_effect'], 
+                    result['risk_level'], 
+                    result['severity'],
+                    age, 
+                    stage
+                )
+                st.markdown('<div class="section-header" style="font-size:1.1rem; color:#e91e8c; margin-top:1rem;">✨ AI Personalized Care Plan</div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                <div style="background:rgba(233,30,140,0.05); border:1px solid rgba(233,30,140,0.2); 
+                     border-radius:15px; padding:1.2rem; font-size:0.9rem; line-height:1.6;">
+                    {ai_advice}
+                    <hr style="margin:1rem 0; opacity:0.1;">
+                    <div style="font-size:0.7rem; color:#7b8aad; text-align:center;">
+                        ⚠️ AI recommendations are for support only. Always consult your oncologist before adding medications or supplements.
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
         else:
             st.markdown("""
