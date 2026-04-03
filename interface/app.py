@@ -340,7 +340,7 @@ generation_config = {
     "top_k": 1,
     "max_output_tokens": 800,
 }
-model_ai = genai.GenerativeModel(model_name="gemini-pro", generation_config=generation_config)
+model_ai = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=generation_config)
 
 RISK_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
 SEV_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
