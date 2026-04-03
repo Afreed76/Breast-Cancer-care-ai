@@ -340,7 +340,7 @@ generation_config = {
     "top_k": 1,
     "max_output_tokens": 800,
 }
-model_ai = genai.GenerativeModel(model_name="gemini-1.5-flash", generation_config=generation_config)
+model_ai = genai.GenerativeModel(model_name="gemini-1.5-flash-latest", generation_config=generation_config)
 
 RISK_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
 SEV_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
@@ -586,7 +586,7 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.markdown("### Navigation")
-    page = st.radio("", ["🏠 Home", "🔬 Predict", "📊 Analytics", "⚙️ Pipeline"], label_visibility="collapsed")
+    page = st.radio("", ["🏠 Home", "🔬 Predict", "📊 Analytics", "🤖 AI Assistant", "⚙️ Pipeline"], label_visibility="collapsed")
 
     st.markdown("---")
     st.markdown("### Model Status")
@@ -1091,9 +1091,69 @@ elif page == "📊 Analytics":
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# PAGE: PIPELINE
+# PAGE: AI ASSISTANT
 # ════════════════════════════════════════════════════════════════════════════
-elif page == "⚙️ Pipeline":
+elif page == "🤖 AI Assistant":
+
+    st.markdown('<div class="hero-title" style="font-size:2rem;">🤖 AI Health Assistant</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero-subtitle">Ask questions about chemotherapy, side effects, and wellness tips.</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="background:rgba(233,30,140,0.03); border:1px solid rgba(233,30,140,0.15); 
+         border-radius:20px; padding:2rem; margin-bottom:2rem;">
+        <div style="font-size:1.1rem; color:#e91e8c; font-weight:700; margin-bottom:1rem;">👩‍⚕️ How can I help you today?</div>
+        <p style="color:#7b8aad; font-size:0.9rem; margin-bottom:1.5rem;">
+            You can ask about diet, medications, side effect management, or emotional wellbeing during treatment.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # Chat interface
+    user_query = st.text_area("Enter your question below:", placeholder="e.g. What diet should I follow during chemo?", height=120)
+    
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        ask_btn = st.button("🚀 Ask AI", use_container_width=True)
+
+    if ask_btn and user_query:
+        with st.status("✨ AI is thinking...", expanded=True) as status:
+            try:
+                # Custom health system prompt
+                assistant_prompt = f"""
+                Act as a specialized AI Healthcare Assistant for Breast Cancer. 
+                Answer the following patient query professionally and compassionately.
+                
+                Patient Query: {user_query}
+                
+                Instructions:
+                - Focus on Breast Cancer and Chemotherapy context.
+                - Use structured bullet points.
+                - Provide practical remedies or advice.
+                - Always include a medical disclaimer at the end.
+                """
+                response = model_ai.generate_content(assistant_prompt)
+                ai_reply = response.text
+                
+                st.markdown('<div class="section-header" style="font-size:1.1rem; color:#e91e8c; margin-top:1rem;">👩‍⚕️ AI Response</div>', unsafe_allow_html=True)
+                st.markdown(f"""
+                <div style="background:rgba(17,24,39,0.8); border:1px solid rgba(255,255,255,0.1); 
+                     border-radius:15px; padding:1.5rem; line-height:1.7; color:#f0f4ff;">
+                    {ai_reply}
+                </div>
+                """, unsafe_allow_html=True)
+                status.update(label="✅ Response Generated!", state="complete")
+            except Exception as e:
+                st.error(f"AI Assistant unavailable. Error: {str(e)}")
+                status.update(label="❌ Generation Failed", state="error")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("💡 Suggested Questions"):
+        st.write("1. What are the common side effects of Stage 2 chemotherapy?")
+        st.write("2. Can you suggest a weekly diet plan for Chemotherapy patients?")
+        st.write("3. How to manage chemotherapy-induced neuropathy?")
+        st.write("4. Best breathing exercises for cancer-related anxiety?")
+
+
 
     st.markdown('<div class="hero-title" style="font-size:2rem;">⚙️ Training Pipeline</div>', unsafe_allow_html=True)
     st.markdown('<div class="hero-subtitle">Run the full AI training pipeline and view real-time terminal output.</div>', unsafe_allow_html=True)
