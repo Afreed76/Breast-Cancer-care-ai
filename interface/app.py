@@ -881,7 +881,9 @@ elif page == "🔬 Predict":
             st.info(f"📋 **Clinical Recommendation**\n\n{recs.get(result['risk_level'], '')}")
 
             # AI Recommendations from Gemini
-            with st.status("✨ Consultig Gemini AI for Personalized Care Plan...", expanded=True):
+            st.markdown('<div class="section-header" style="font-size:1.1rem; color:#e91e8c; margin-top:1.5rem;">✨ AI Personalized Care Plan</div>', unsafe_allow_html=True)
+            
+            with st.status("✨ Analyzing results with Gemini AI...", expanded=True) as status:
                 ai_advice = get_ai_recommendations(
                     result['side_effect'], 
                     result['risk_level'], 
@@ -889,17 +891,18 @@ elif page == "🔬 Predict":
                     age, 
                     stage
                 )
-                st.markdown('<div class="section-header" style="font-size:1.1rem; color:#e91e8c; margin-top:1rem;">✨ AI Personalized Care Plan</div>', unsafe_allow_html=True)
                 st.markdown(f"""
-                <div style="background:rgba(233,30,140,0.05); border:1px solid rgba(233,30,140,0.2); 
-                     border-radius:15px; padding:1.2rem; font-size:0.9rem; line-height:1.6;">
+                <div style="background:rgba(233,30,140,0.03); border:1px solid rgba(233,30,140,0.15); 
+                     border-radius:15px; padding:1.2rem; font-size:0.95rem; line-height:1.7; color:#f0f4ff;">
                     {ai_advice}
-                    <hr style="margin:1rem 0; opacity:0.1;">
-                    <div style="font-size:0.7rem; color:#7b8aad; text-align:center;">
-                        ⚠️ AI recommendations are for support only. Always consult your oncologist before adding medications or supplements.
+                    <hr style="margin:1.2rem 0; opacity:0.1; border-color:#e91e8c;">
+                    <div style="font-size:0.7rem; color:#7b8aad; text-align:center; font-style:italic;">
+                        ⚠️ AI recommendations are for support only. This is NOT medical advice. Always consult your oncologist before starting any new medications or lifestyle changes.
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
+                status.update(label="✅ AI Care Plan Generated!", state="complete", expanded=True)
+
 
         else:
             st.markdown("""
