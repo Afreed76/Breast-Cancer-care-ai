@@ -334,13 +334,32 @@ RISK_LABELS_MAP = {0: "High", 1: "Low", 2: "Medium"}
 # ─── Gemini AI Setup ────────────────────────────────────────────────────────
 GEMINI_API_KEY = "AIzaSyCC66osWbTkW3_qY-GzgX8FecuNQHEN6Rs"
 genai.configure(api_key=GEMINI_API_KEY)
-generation_config = {
-    "temperature": 0.5,
-    "top_p": 1,
-    "top_k": 1,
-    "max_output_tokens": 800,
+
+# Dynamic Model Selection to avoid 404s
+def get_working_model():
+    """Lists available models and returns the best one available for the key"""
+    try:
+        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+        if available_models:
+            # Prefer 1.5 models if available
+            preferred = [m for m in available_models if "1.5" in m]
+            return preferred[0] if preferred else available_models[0]
+        return "gemini-pro" # Baseline fallback
+    except Exception:
+        return "gemini-pro"
+
+# Initialize with a safe default
+CURRENT_MODEL_NAME = get_working_model()
+model_ai = genai.GenerativeModel(model_name=CURRENT_MODEL_NAME)
+
+# Local Knowledge Base (No-API Fallback)
+LOCAL_ADVICE = {
+    "Nausea": "🍋 Ginger tea, small bland meals (BRAT diet), and staying hydrated with electrolyte drinks.",
+    "Fatigue": "🔋 Schedule 'rest clusters' through the day. Short 20-min naps and gentle walking can help.",
+    "Neuropathy": "🧤 Keep hands/feet warm. Use loose-fitting socks. Avoid extreme temperatures. Consult for Vitamin B12.",
+    "Hematologic": "🥬 Increase intake of leafy greens, lentils, and lean proteins. Monitor for fever or bruising.",
+    "General": "🧘 Practice mindfulness, deep breathing, and stay connected with your support group."
 }
-model_ai = genai.GenerativeModel(model_name="gemini-1.5-flash-latest", generation_config=generation_config)
 
 RISK_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
 SEV_COLOR = {"High": "#ff5252", "Medium": "#ffab40", "Low": "#00e676"}
@@ -415,18 +434,15 @@ def get_ai_recommendations(side_effect, risk_level, severity, age, stage):
     Start directly with the first section.
     """
     
-    # Try primary model (Flash)
     try:
+        # Final fallback check - ensure model is re-initialized if needed
+        global model_ai
         response = model_ai.generate_content(prompt)
         return response.text
-    except Exception:
-        # Fallback to secondary model (Pro)
-        try:
-            model_fallback = genai.GenerativeModel(model_name="gemini-1.5-pro-latest")
-            response = model_fallback.generate_content(prompt)
-            return response.text
-        except Exception as e:
-            return f"AI Recommendation Service currently unavailable. Error: {str(e)}"
+    except Exception as e:
+        # Use Local Knowledge Base as Emergency Fallback
+        advice = LOCAL_ADVICE.get(side_effect, LOCAL_ADVICE["General"])
+        return f"### ⚠️ AI Service Offline - Using Local Knowledge Base\n\n**Base Recommendations for {side_effect}:**\n\n{advice}\n\n*Original Error: {str(e)}*"
 
 def predict(age, stage, fatigue, pain, emotion, physical, social, cognitive, sleep, appetite, prev_nausea, prev_neuro):
     """Run prediction using loaded models"""
@@ -1151,8 +1167,16 @@ elif page == "🤖 AI Assistant":
                 """, unsafe_allow_html=True)
                 status.update(label="✅ Response Generated!", state="complete")
             except Exception as e:
-                st.error(f"AI Assistant unavailable. Error: {str(e)}")
-                status.update(label="❌ Generation Failed", state="error")
+                # Local Q&A Fallback
+                advice = LOCAL_ADVICE["General"]
+                for key in LOCAL_ADVICE:
+                    if key.lower() in user_query.lower():
+                        advice = LOCAL_ADVICE[key]
+                        break
+                
+                st.markdown('<div class="section-header" style="font-size:1.1rem; color:#e91e8c; margin-top:1rem;">👩‍⚕️ AI Status: Limited Mode (API Offline)</div>', unsafe_allow_html=True)
+                st.info(f"### ⚠️ AI Service Unavailable\n\n**Quick Tips for your question:**\n\n{advice}\n\n*Error details for developer: {str(e)}*")
+                status.update(label="⚠️ Offline Mode", state="complete")
     
     st.markdown("<br>", unsafe_allow_html=True)
     with st.expander("💡 Suggested Questions"):
