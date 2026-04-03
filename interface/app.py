@@ -414,11 +414,19 @@ def get_ai_recommendations(side_effect, risk_level, severity, age, stage):
     Use clear bullet points and markdown formatting. KEEP IT CONCISE and professional. 
     Start directly with the first section.
     """
+    
+    # Try primary model (Flash)
     try:
         response = model_ai.generate_content(prompt)
         return response.text
-    except Exception as e:
-        return f"AI Recommendation Service currently unavailable. Error: {str(e)}"
+    except Exception:
+        # Fallback to secondary model (Pro)
+        try:
+            model_fallback = genai.GenerativeModel(model_name="gemini-1.5-pro-latest")
+            response = model_fallback.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            return f"AI Recommendation Service currently unavailable. Error: {str(e)}"
 
 def predict(age, stage, fatigue, pain, emotion, physical, social, cognitive, sleep, appetite, prev_nausea, prev_neuro):
     """Run prediction using loaded models"""

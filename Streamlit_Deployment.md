@@ -28,7 +28,10 @@ git push origin main
 *   The dashboard will show logs while building. Once it's finished, your app will be live and accessible via a public URL!
 
 ### 5. Using the App
-Once deployed, you can use the **Predict** tab with the Gemini AI integration to see your side effect care plans.
+- **🔬 Predict Tab:** Run predictions and see the **AI Care Plan** generated for the results.
+- **📊 Analytics Tab:** Explore dataset patterns and model metrics.
+- **🤖 AI Assistant:** Directly ask the AI health assistant any questions about wellness or side effects.
+- **⚙️ Pipeline Tab:** View real-time training logs.
 
 ---
 **Note:** If the app fails to start, check the logs on the bottom right of the Streamlit dashboard for any errors.
