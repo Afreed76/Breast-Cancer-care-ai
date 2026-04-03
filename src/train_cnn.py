@@ -1,48 +1,43 @@
-import tensorflow as tf
+import joblib
+from sklearn.neural_network import MLPClassifier
+import os
+import sys
+
+# Add parent dir to path
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from preprocess import load_data
 
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATASET_PATH = os.path.join(ROOT, "dataset", "raw_qol_data.csv")
+MODELS_DIR = os.path.join(ROOT, "saved_models")
 
 # Load data
-X, y, _, _, _, _, _, _ = load_data("dataset/raw_qol_data.csv")
+print("📂 Loading dataset...")
+X, y_side, _, _, _, enc1, _, _ = load_data(DATASET_PATH)
+print(f"  ✅ Loaded {X.shape[0]} samples, {X.shape[1]} features")
+print(f"  🏷️  Classes: {list(enc1.classes_)}")
 
-# Reshape for CNN
-X = X.reshape(X.shape[0], X.shape[1], 1)
-
-
-# CNN Model
-model = tf.keras.Sequential([
-
-    tf.keras.layers.Conv1D(
-        64, 2, activation="relu",
-        input_shape=(X.shape[1], 1)
-    ),
-
-    tf.keras.layers.MaxPooling1D(),
-
-    tf.keras.layers.Conv1D(32, 2, activation="relu"),
-
-    tf.keras.layers.Flatten(),
-
-    tf.keras.layers.Dense(64, activation="relu"),
-
-    tf.keras.layers.Dense(5, activation="softmax")
-])
-
-
-# Compile
-model.compile(
-    optimizer="adam",
-    loss="sparse_categorical_crossentropy",
-    metrics=["accuracy"]
+# MLP Classifier (replaces CNN — compatible with all Python versions)
+model = MLPClassifier(
+    hidden_layer_sizes=(128, 64, 32),
+    activation="relu",
+    solver="adam",
+    max_iter=300,
+    random_state=42,
+    early_stopping=True,
+    validation_fraction=0.1,
+    verbose=True
 )
 
-
-# Train
-print("Training CNN...")
-model.fit(X, y, epochs=25, batch_size=32)
-
+print("\n🧠 Training Neural Network (Side Effect Classifier)...")
+model.fit(X, y_side)
 
 # Save
-model.save("../saved_models/cnn_side_effect_model.h5")
+os.makedirs(MODELS_DIR, exist_ok=True)
+out_path = os.path.join(MODELS_DIR, "cnn_side_effect_model.pkl")
+joblib.dump(model, out_path)
+print(f"\n✅ Model saved → {out_path}")
 
-print("✅ CNN Model Saved")
+# Quick accuracy check
+acc = model.score(X, y_side)
+print(f"   Training Accuracy: {acc * 100:.2f}%")

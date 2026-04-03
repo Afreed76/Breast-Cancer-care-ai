@@ -1,8 +1,10 @@
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder, MinMaxScaler
+import os
 
 
 def load_data(path):
+    """Load and preprocess the QoL dataset"""
 
     # Load dataset
     df = pd.read_csv(path)
