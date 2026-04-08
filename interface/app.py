@@ -335,21 +335,8 @@ RISK_LABELS_MAP = {0: "High", 1: "Low", 2: "Medium"}
 GEMINI_API_KEY = "AIzaSyCC66osWbTkW3_qY-GzgX8FecuNQHEN6Rs"
 genai.configure(api_key=GEMINI_API_KEY)
 
-# Dynamic Model Selection to avoid 404s
-def get_working_model():
-    """Lists available models and returns the best one available for the key"""
-    try:
-        available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-        if available_models:
-            # Prefer 1.5 models if available
-            preferred = [m for m in available_models if "1.5" in m]
-            return preferred[0] if preferred else available_models[0]
-        return "gemini-pro" # Baseline fallback
-    except Exception:
-        return "gemini-pro"
-
-# Initialize with a safe default
-CURRENT_MODEL_NAME = get_working_model()
+# Initializing with the latest supported model
+CURRENT_MODEL_NAME = "gemini-1.5-flash"
 model_ai = genai.GenerativeModel(model_name=CURRENT_MODEL_NAME)
 
 # Local Knowledge Base (No-API Fallback)
