@@ -13,6 +13,10 @@ import threading
 import time
 import io
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load secret environment variables (e.g. from .env file locally)
+load_dotenv()
 
 # ─── Page Config ────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -332,13 +336,20 @@ SIDE_EFFECT_LABELS = ["Fatigue", "Hematologic", "Nausea", "Neuropathy", "None"]
 RISK_LABELS_MAP = {0: "High", 1: "Low", 2: "Medium"}
 
 # ─── Groq AI Setup ────────────────────────────────────────────────────────
-# Groq requires an API key, which users can input in the sidebar.
-CURRENT_MODEL_NAME = "llama3-8b-8192"
+CURRENT_MODEL_NAME = "llama-3.3-70b-versatile"
 
 def get_groq_client():
+    # Use environment variable managed securely by .env (locally) or Streamlit Secrets (in production)
     key = os.environ.get("GROQ_API_KEY", "")
+    
+    # Optional stream deployment handling
+    if not key and getattr(st, 'secrets', None) and "GROQ_API_KEY" in st.secrets:
+        key = st.secrets["GROQ_API_KEY"]
+        
     if not key:
-        raise ValueError("Groq API Key not set.")
+        st.error("⚠️ Groq API Key is missing! Set it in your .env file or Streamlit Secrets.")
+        raise ValueError("Groq API Key not found.")
+        
     return Groq(api_key=key)
 
 # Local Knowledge Base (No-API Fallback)
@@ -608,11 +619,6 @@ with st.sidebar:
              margin:0.8rem auto 0 auto; border-radius:1px;"></div>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("### AI Configuration")
-    groq_key = st.text_input("Groq API Key (Free)", type="password", help="Get a free key from console.groq.com")
-    if groq_key:
-        os.environ["GROQ_API_KEY"] = groq_key
 
     st.markdown("### Navigation")
     page = st.radio("", ["🏠 Home", "🔬 Predict", "📊 Analytics", "🤖 AI Assistant", "⚙️ Pipeline"], label_visibility="collapsed")
