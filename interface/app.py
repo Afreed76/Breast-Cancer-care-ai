@@ -35,17 +35,17 @@ st.markdown("""
 
 /* Root Variables */
 :root {
-    --primary: #D4AF37;
-    --primary-dark: #B8860B;
-    --primary-glow: rgba(212, 175, 55, 0.25);
-    --accent: #FFD700;
-    --accent-glow: rgba(255, 215, 0, 0.2);
+    --primary: #F57C00;
+    --primary-dark: #E65100;
+    --primary-glow: rgba(245, 124, 0, 0.25);
+    --accent: #FFCA28;
+    --accent-glow: rgba(255, 202, 40, 0.2);
     --success: #00Bfa5;
-    --warning: #F57C00;
+    --warning: #FFB300;
     --danger: #D32F2F;
-    --bg-main: #FFFFFF;
+    --bg-main: #F4F5F7;
     --bg-card: #FFFFFF;
-    --bg-card2: #F8F9FA;
+    --bg-card2: #FFFFFF;
     --bg-input: #FFFFFF;
     --border: rgba(0, 0, 0, 0.1);
     --text: #000000;
@@ -67,13 +67,13 @@ html, body, [class*="css"] {
 
 /* App background */
 .stApp {
-    background: #FFFFFF !important;
+    background: #F4F5F7 !important;
     background-attachment: fixed !important;
 }
 
 /* Sidebar */
 section[data-testid="stSidebar"] {
-    background: #F8F9FA !important;
+    background: #FFFFFF !important;
     border-right: 1px solid var(--border) !important;
     width: 300px !important;
 }
@@ -155,13 +155,13 @@ section[data-testid="stSidebar"] > div {
 .badge-low { background: rgba(0,230,118,0.15); color: #00e676; border: 1px solid rgba(0,230,118,0.3); }
 
 .terminal-box {
-    background: #111827;
-    border: 1px solid rgba(212,175,55,0.3);
+    background: #1E1E1E;
+    border: 1px solid rgba(245, 124, 0, 0.3);
     border-radius: 12px;
     padding: 1rem 1.2rem;
     font-family: var(--mono) !important;
     font-size: 0.78rem;
-    color: #F8F9FA;
+    color: #FFFFFF;
     max-height: 350px;
     overflow-y: auto;
     white-space: pre-wrap;
@@ -171,7 +171,7 @@ section[data-testid="stSidebar"] > div {
 
 .terminal-header {
     background: #000000;
-    border: 1px solid rgba(212,175,55,0.3);
+    border: 1px solid rgba(245, 124, 0, 0.3);
     border-bottom: none;
     border-radius: 12px 12px 0 0;
     padding: 0.6rem 1rem;
@@ -187,7 +187,7 @@ section[data-testid="stSidebar"] > div {
 
 /* Sliders */
 div[data-baseweb="slider"] > div {
-    background: rgba(212,175,55,0.3) !important;
+    background: rgba(245, 124, 0, 0.3) !important;
 }
 div[data-baseweb="slider"] [data-testid="stTickBar"] { color: var(--text-muted) !important; }
 
@@ -804,7 +804,7 @@ if page == "🏠 Home":
             <div style="background:rgba(240,240,240,0.8); border:1px solid rgba(0,0,0,0.1);
                  border-radius:14px; padding:1rem; text-align:center; height:100%;">
                 <div style="font-size:2rem; margin-bottom:0.5rem;">{icon}</div>
-                <div style="font-size:0.65rem; color:#B8860B; font-weight:700; letter-spacing:0.1em; margin-bottom:0.3rem;">STEP {num}</div>
+                <div style="font-size:0.65rem; color:#F57C00; font-weight:700; letter-spacing:0.1em; margin-bottom:0.3rem;">STEP {num}</div>
                 <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:#000000;">{title}</div>
                 <div style="font-size:0.72rem; color:#000000; line-height:1.5;">{desc}</div>
             </div>
@@ -816,13 +816,13 @@ if page == "🏠 Home":
 # ════════════════════════════════════════════════════════════════════════════
 elif page == "🔬 Predict":
 
-    st.markdown('<div class="hero-title" style="font-size:2rem; color: #B8860B;">🔬 Patient Prediction</div>', unsafe_allow_html=True)
+    st.markdown('<div class="hero-title" style="font-size:2rem; color: #F57C00;">🔬 Patient Prediction</div>', unsafe_allow_html=True)
     st.markdown('<div class="hero-subtitle" style="color: #000000;">Enter patient Quality of Life (QoL) scores to get AI predictions.</div>', unsafe_allow_html=True)
 
     with st.expander("📊 Score Interpretation Guide (Click to Expand)", expanded=False):
         st.markdown("""
-        <div style="background: #F8F9FA; padding: 15px; border-radius: 8px; border: 1px solid #D4AF37;">
-        <h4 style="color: #D4AF37; margin-top:0;">0-30: Mild | 31-70: Moderate | 71-100: Severe</h4>
+        <div style="background: #FFFFFF; padding: 15px; border-radius: 8px; border: 1px solid #FFCA28;">
+        <h4 style="color: #F57C00; margin-top:0;">0-30: Mild | 31-70: Moderate | 71-100: Severe</h4>
         <ul style="color: #000000;">
           <li><b>💪 Fatigue:</b> 0-30 Normal | 31-70 Weak | 71-100 Extreme</li>
           <li><b>🤢 Nausea:</b> 0-30 Little discomfort | 31-70 Vomiting sometimes | 71-100 Severe</li>
@@ -843,7 +843,7 @@ elif page == "🔬 Predict":
         st.markdown("""
         <div style="background: #FFFFFF; border:1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.05);
              border-radius:20px; padding:1.5rem 1.5rem 0.5rem 1.5rem; margin-bottom:1rem;">
-            <div class="section-header" style="font-size:1.1rem; margin-bottom:1rem; color: #B8860B;">
+            <div class="section-header" style="font-size:1.1rem; margin-bottom:1rem; color: #F57C00;">
                 👤 Patient Demographics & Identity
             </div>
         """, unsafe_allow_html=True)
