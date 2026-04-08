@@ -574,11 +574,11 @@ def run_full_pipeline():
     add_log("=" * 55, "white")
 
     steps = [
-        (f'cd "{os.path.join(ROOT, "dataset")}" && python generate_dataset.py', "Generating Dataset"),
-        (f'cd "{ROOT}" && python src/train_cnn.py', "Training CNN Model"),
-        (f'cd "{ROOT}" && python src/train_regression.py', "Training Severity Model"),
-        (f'cd "{ROOT}" && python src/train_risk.py', "Training Risk Classifier"),
-        (f'cd "{ROOT}" && python src/evaluate.py', "Evaluating Models"),
+        (f'cd "{os.path.join(ROOT, "dataset")}" && "{sys.executable}" generate_dataset.py', "Generating Dataset"),
+        (f'cd "{ROOT}" && "{sys.executable}" src/train_cnn.py', "Training CNN Model"),
+        (f'cd "{ROOT}" && "{sys.executable}" src/train_regression.py', "Training Severity Model"),
+        (f'cd "{ROOT}" && "{sys.executable}" src/train_risk.py', "Training Risk Classifier"),
+        (f'cd "{ROOT}" && "{sys.executable}" src/evaluate.py', "Evaluating Models"),
     ]
 
     for cmd, label in steps:
